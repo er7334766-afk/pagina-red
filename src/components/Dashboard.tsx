@@ -6,6 +6,8 @@ import StatusBadge from './StatusBadge'
 import PagoModal from './PagoModal'
 import Toast from './Toast'
 
+const MOROSOS_POR_PAGINA = 50
+
 interface Props {
   clientes: Cliente[]
   onRegistrarPago: (id: number, meses: number) => void
@@ -14,6 +16,7 @@ interface Props {
 export default function Dashboard({ clientes, onRegistrarPago }: Props) {
   const [pagoCliente, setPagoCliente] = useState<Cliente | null>(null)
   const [toast, setToast] = useState('')
+  const [pagina, setPagina] = useState(1)
 
   const total = clientes.length
   const activos = clientes.filter(c => c.estado === 'Al dia').length
@@ -21,6 +24,8 @@ export default function Dashboard({ clientes, onRegistrarPago }: Props) {
   const cortados = clientes.filter(c => c.estado === 'Cortado').length
 
   const morosos = clientes.filter(esMoroso)
+  const totalPaginas = Math.max(1, Math.ceil(morosos.length / MOROSOS_POR_PAGINA))
+  const morososPagina = morosos.slice((pagina - 1) * MOROSOS_POR_PAGINA, pagina * MOROSOS_POR_PAGINA)
 
   const handlePago = useCallback((meses: number) => {
     if (!pagoCliente) return
@@ -77,7 +82,7 @@ export default function Dashboard({ clientes, onRegistrarPago }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {morosos.map((c, i) => {
+                  {morososPagina.map((c, i) => {
                     const dias = calcDiasMora(c.ultimoMesPagado)
                     return (
                       <tr key={c.id} className={`hover:bg-slate-50 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`}>
@@ -103,6 +108,16 @@ export default function Dashboard({ clientes, onRegistrarPago }: Props) {
                   })}
                 </tbody>
               </table>
+            </div>
+          )}
+          {morosos.length > 0 && (
+            <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-6 py-3 text-xs text-slate-500">
+              <span>Mostrando hasta 50 de {morosos.length} clientes</span>
+              <div className="flex items-center gap-2">
+                <button type="button" disabled={pagina === 1} onClick={() => setPagina(value => value - 1)} className="rounded border border-slate-200 bg-white px-3 py-1.5 font-medium disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-50">Anterior</button>
+                <span className="min-w-20 text-center">Página {pagina} de {totalPaginas}</span>
+                <button type="button" disabled={pagina === totalPaginas} onClick={() => setPagina(value => value + 1)} className="rounded border border-slate-200 bg-white px-3 py-1.5 font-medium disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-50">Siguiente</button>
+              </div>
             </div>
           )}
         </div>

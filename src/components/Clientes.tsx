@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, type ReactNode } from 'react'
+import { useState, useCallback, useMemo, useEffect, type ReactNode } from 'react'
 import { Search, Plus, Pencil, CreditCard, UserX } from './icons'
 import { Cliente, Estado } from '../types'
 import { formatMes, esMoroso } from '../store/useClientes'
@@ -17,6 +17,7 @@ interface Props {
 }
 
 type FiltroEstado = 'Todos' | Estado
+const CLIENTES_POR_PAGINA = 50
 
 export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, onRegistrarPago }: Props) {
   const [busqueda, setBusqueda] = useState('')
@@ -25,6 +26,7 @@ export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, o
   const [pagoCliente, setPagoCliente] = useState<Cliente | null>(null)
   const [bajaCliente, setBajaCliente] = useState<Cliente | null>(null)
   const [toast, setToast] = useState('')
+  const [pagina, setPagina] = useState(1)
 
   const filtered = useMemo(() => {
     return clientes.filter(c => {
@@ -37,6 +39,13 @@ export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, o
       return matchBusq && matchFiltro
     })
   }, [clientes, busqueda, filtro])
+
+  const totalPaginas = Math.max(1, Math.ceil(filtered.length / CLIENTES_POR_PAGINA))
+  const clientesPagina = filtered.slice((pagina - 1) * CLIENTES_POR_PAGINA, pagina * CLIENTES_POR_PAGINA)
+
+  useEffect(() => {
+    setPagina(current => Math.min(current, totalPaginas))
+  }, [totalPaginas])
 
   const handleSaveCliente = useCallback(async (data: Omit<Cliente, 'id'>) => {
     try {
@@ -137,7 +146,7 @@ export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, o
                       No se encontraron clientes
                     </td>
                   </tr>
-                ) : filtered.map((c, i) => {
+                ) : clientesPagina.map((c, i) => {
                   const estadoEfectivo: Estado | null = esMoroso(c) ? 'En mora' : c.estado
                   return (
                     <tr key={c.id} className={`hover:bg-slate-50/60 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/20'}`}>
@@ -182,6 +191,9 @@ export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, o
             </table>
           </div>
         </div>
+        {filtered.length > 0 && (
+          <Pagination pagina={pagina} totalPaginas={totalPaginas} total={filtered.length} onChange={setPagina} />
+        )}
       </div>
 
       {editCliente !== null && (
@@ -206,6 +218,38 @@ export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, o
         />
       )}
       {toast && <Toast message={toast} onClose={closeToast} />}
+    </div>
+  )
+}
+
+function Pagination({ pagina, totalPaginas, total, onChange }: {
+  pagina: number
+  totalPaginas: number
+  total: number
+  onChange: (pagina: number) => void
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-1 pt-4 text-xs text-slate-500">
+      <span>Mostrando hasta 50 de {total} clientes</span>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          disabled={pagina === 1}
+          onClick={() => onChange(pagina - 1)}
+          className="rounded border border-slate-200 bg-white px-3 py-1.5 font-medium disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-50"
+        >
+          Anterior
+        </button>
+        <span className="min-w-20 text-center">Página {pagina} de {totalPaginas}</span>
+        <button
+          type="button"
+          disabled={pagina === totalPaginas}
+          onClick={() => onChange(pagina + 1)}
+          className="rounded border border-slate-200 bg-white px-3 py-1.5 font-medium disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-50"
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
   )
 }
