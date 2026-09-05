@@ -25,3 +25,7 @@ CREATE TABLE IF NOT EXISTS clientes (
         FOREIGN KEY (id_estado)
         REFERENCES estados (id_estado)
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS clientes_ip_unique
+    ON clientes (ip)
+    WHERE ip IS NOT NULL;

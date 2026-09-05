@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "format": "oxfmt",
     "db:load": "node database/load-to-render.mjs",
+    "db:cleanup-test": "node database/remove-test-client.mjs",
     "start": "node server/index.mjs"
   },
   "dependencies": {

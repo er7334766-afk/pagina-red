@@ -164,12 +164,16 @@ app.post('/api/clientes/:id/pagos', async (request, response) => {
 
 app.use((error, _request, response, _next) => {
   console.error(error)
+  if (error.code === '23505' && error.constraint === 'clientes_ip_unique') {
+    return response.status(409).json({ error: 'Ya existe un cliente con esa IP' })
+  }
   response.status(500).json({ error: 'Error interno del servidor' })
 })
 
 async function start() {
   await pool.query("UPDATE estados SET nombre = 'Al dia' WHERE id_estado = 1 AND nombre = 'Activo'")
   await pool.query("UPDATE clientes SET plan = plan || 'mg' WHERE plan ~ '^\\d+(\\.\\d+)?$'")
+  await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS clientes_ip_unique ON clientes (ip) WHERE ip IS NOT NULL')
   app.listen(port, () => {
     console.log(`API escuchando en el puerto ${port}`)
   })
