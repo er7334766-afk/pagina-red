@@ -38,22 +38,30 @@ export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, o
     })
   }, [clientes, busqueda, filtro])
 
-  const handleSaveCliente = useCallback((data: Omit<Cliente, 'id'>) => {
-    if (editCliente === 'nuevo') {
-      onAgregar(data)
-      setToast('Cliente creado correctamente')
-    } else if (editCliente) {
-      onEditar(editCliente.id, data)
-      setToast('Cliente actualizado correctamente')
+  const handleSaveCliente = useCallback(async (data: Omit<Cliente, 'id'>) => {
+    try {
+      if (editCliente === 'nuevo') {
+        await onAgregar(data)
+        setToast('Cliente creado correctamente')
+      } else if (editCliente) {
+        await onEditar(editCliente.id, data)
+        setToast('Cliente actualizado correctamente')
+      }
+      setEditCliente(null)
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : 'No se pudo guardar el cliente')
     }
-    setEditCliente(null)
   }, [editCliente, onAgregar, onEditar])
 
-  const handlePago = useCallback((meses: number) => {
+  const handlePago = useCallback(async (meses: number) => {
     if (!pagoCliente) return
-    onRegistrarPago(pagoCliente.id, meses)
-    setPagoCliente(null)
-    setToast('Pago registrado correctamente')
+    try {
+      await onRegistrarPago(pagoCliente.id, meses)
+      setPagoCliente(null)
+      setToast('Pago registrado correctamente')
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : 'No se pudo registrar el pago')
+    }
   }, [pagoCliente, onRegistrarPago])
 
   const handleBaja = useCallback(() => {

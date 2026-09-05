@@ -13,7 +13,7 @@ export default function App() {
   const { clientes, agregarCliente, editarCliente, darDeBaja, registrarPago } = useClientes()
 
   const handleRegistrarPago = useCallback((id: number, meses: number) => {
-    registrarPago(id, meses)
+    return registrarPago(id, meses)
   }, [registrarPago])
 
   return (
