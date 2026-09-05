@@ -10,6 +10,7 @@ import Toast from './Toast'
 
 interface Props {
   clientes: Cliente[]
+  cargando: boolean
   onAgregar: (data: Omit<Cliente, 'id'>) => void
   onEditar: (id: number, data: Omit<Cliente, 'id'>) => void
   onDarDeBaja: (id: number) => void
@@ -19,7 +20,7 @@ interface Props {
 type FiltroEstado = 'Todos' | Estado
 const CLIENTES_POR_PAGINA = 50
 
-export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, onRegistrarPago }: Props) {
+export default function Clientes({ clientes, cargando, onAgregar, onEditar, onDarDeBaja, onRegistrarPago }: Props) {
   const [busqueda, setBusqueda] = useState('')
   const [filtro, setFiltro] = useState<FiltroEstado>('Todos')
   const [editCliente, setEditCliente] = useState<Cliente | null | 'nuevo'>(null)
@@ -140,7 +141,11 @@ export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, o
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filtered.length === 0 ? (
+                {cargando ? (
+                  <tr>
+                    <td colSpan={9} className="px-4 py-12 text-center text-slate-400 text-sm">Cargando clientes...</td>
+                  </tr>
+                ) : filtered.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="px-4 py-12 text-center text-slate-400 text-sm">
                       No se encontraron clientes

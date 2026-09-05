@@ -13,7 +13,7 @@ export default function App() {
   const [token, setToken] = useState(() => sessionStorage.getItem('semtec_token') || '')
   const [page, setPage] = useState<Page>('dashboard')
   const [menuOpen, setMenuOpen] = useState(false)
-  const { clientes, agregarCliente, editarCliente, darDeBaja, registrarPago } = useClientes(token)
+  const { clientes, cargando, agregarCliente, editarCliente, darDeBaja, registrarPago } = useClientes(token)
   const handleRegistrarPago = useCallback((id: number, meses: number, ultimoMesPagado: string) => {
     return registrarPago(id, meses, ultimoMesPagado)
   }, [registrarPago])
@@ -40,10 +40,11 @@ export default function App() {
           <Menu size={20} />
         </button>
         {page === 'dashboard' ? (
-          <Dashboard clientes={clientes} onRegistrarPago={handleRegistrarPago} />
+          <Dashboard clientes={clientes} cargando={cargando} onRegistrarPago={handleRegistrarPago} />
         ) : (
           <Clientes
             clientes={clientes}
+            cargando={cargando}
             onAgregar={agregarCliente}
             onEditar={editarCliente}
             onDarDeBaja={darDeBaja}

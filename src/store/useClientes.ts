@@ -44,12 +44,42 @@ export function formatMes(dateStr: string | null): string {
 
 export function useClientes(token: string) {
   const [clientes, setClientes] = useState<Cliente[]>([])
+  const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
-    request<Cliente[]>('/api/clientes', token)
-      .then(setClientes)
-      .catch(error => console.error('No se pudieron cargar los clientes:', error))
-  }, [])
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+
+    async function loadClientes() {
+      setCargando(true)
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        try {
+          const loaded = await request<Cliente[]>('/api/clientes', token)
+          if (!cancelled) {
+            setClientes(loaded)
+            setCargando(false)
+          }
+          return
+        } catch (error) {
+          if (error instanceof Error && error.message === 'Sesión requerida') return
+          if (attempt < 4) {
+            await new Promise<void>(resolve => {
+              timer = setTimeout(resolve, (attempt + 1) * 1000)
+            })
+          } else if (!cancelled) {
+            console.error('No se pudieron cargar los clientes:', error)
+            setCargando(false)
+          }
+        }
+      }
+    }
+
+    loadClientes()
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+    }
+  }, [token])
 
   async function agregarCliente(data: Omit<Cliente, 'id'>) {
     const created = await request<Cliente>('/api/clientes', token, {
@@ -80,5 +110,5 @@ export function useClientes(token: string) {
     setClientes(prev => prev.map(cliente => (cliente.id === id ? updated : cliente)))
   }
 
-  return { clientes, agregarCliente, editarCliente, darDeBaja, registrarPago }
+  return { clientes, cargando, agregarCliente, editarCliente, darDeBaja, registrarPago }
 }

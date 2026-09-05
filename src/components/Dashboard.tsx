@@ -10,10 +10,11 @@ const MOROSOS_POR_PAGINA = 50
 
 interface Props {
   clientes: Cliente[]
+  cargando: boolean
   onRegistrarPago: (id: number, meses: number, ultimoMesPagado: string) => void
 }
 
-export default function Dashboard({ clientes, onRegistrarPago }: Props) {
+export default function Dashboard({ clientes, cargando, onRegistrarPago }: Props) {
   const [pagoCliente, setPagoCliente] = useState<Cliente | null>(null)
   const [toast, setToast] = useState('')
   const [pagina, setPagina] = useState(1)
@@ -66,7 +67,9 @@ export default function Dashboard({ clientes, onRegistrarPago }: Props) {
               </span>
             )}
           </div>
-          {morosos.length === 0 ? (
+          {cargando ? (
+            <div className="px-6 py-12 text-center text-sm text-slate-400">Cargando clientes...</div>
+          ) : morosos.length === 0 ? (
             <div className="px-6 py-12 text-center">
               <Wifi size={32} className="text-emerald-400 mx-auto mb-2" />
               <p className="text-slate-500 text-sm">No hay clientes en mora</p>
