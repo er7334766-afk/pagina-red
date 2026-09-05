@@ -87,19 +87,14 @@ export default function ClienteModal({ cliente, onClose, onSave }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1.5 uppercase tracking-wide">Plan</label>
-              <select
+              <input
+                type="text"
                 value={form.plan ?? ''}
                 onChange={e => set('plan', e.target.value)}
                 required
+                placeholder="Ej: 30mg"
                 className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Seleccionar...</option>
-                <option value="10 Mbps">10 Mbps</option>
-                <option value="20 Mbps">20 Mbps</option>
-                <option value="30 Mbps">30 Mbps</option>
-                <option value="50 Mbps">50 Mbps</option>
-                <option value="100 Mbps">100 Mbps</option>
-              </select>
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1.5 uppercase tracking-wide">Valor mensual (L)</label>
