@@ -19,7 +19,7 @@ function mesesPendientes(ultimoMesPagado: string | null): { value: string; label
     const date = new Date(year, month, 1)
     result.push({
       value: `${year}-${String(month + 1).padStart(2, '0')}-01`,
-      label: date.toLocaleDateString('es-HN', { month: 'long', year: 'numeric' }),
+      label: date.toLocaleDateString('es-HN', { month: 'long' }),
     })
   }
   return result
