@@ -15,8 +15,11 @@ const client = new Client({
 try {
   await client.connect()
   await client.query('CREATE UNIQUE INDEX IF NOT EXISTS clientes_ip_unique ON clientes (ip) WHERE ip IS NOT NULL')
-  const result = await client.query("DELETE FROM clientes WHERE ip = '10.10.20.1000' RETURNING id_cliente")
+  const result = await client.query(
+    "DELETE FROM clientes WHERE id_cliente IN (279, 280) OR ip IN ('23894723894', '234890') RETURNING id_cliente, ip",
+  )
   console.log(`Registros eliminados: ${result.rowCount}`)
+  console.log(result.rows)
   console.log('Restriccion de IP unica creada correctamente.')
 } catch (error) {
   console.error('No se pudo limpiar el registro:', error.message)
