@@ -17,7 +17,7 @@ const empty: Omit<Cliente, 'id'> = {
   valor: 0,
   ip: '',
   ultimoMesPagado: today,
-  estado: 'Activo',
+  estado: 'Al dia',
 }
 
 export default function ClienteModal({ cliente, onClose, onSave }: Props) {
@@ -65,7 +65,7 @@ export default function ClienteModal({ cliente, onClose, onSave }: Props) {
                 onChange={e => set('estado', e.target.value as Estado)}
                 className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="Activo">Activo</option>
+                <option value="Al dia">Al dia</option>
                 <option value="En mora">En mora</option>
                 <option value="Cortado">Cortado</option>
               </select>

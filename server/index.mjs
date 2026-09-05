@@ -28,7 +28,15 @@ function dateOnly(value) {
   return String(value).split('T')[0]
 }
 
+function effectiveStatus(status, lastPaid) {
+  if (status === 'Cortado') return 'Cortado'
+  if (!lastPaid) return status
+  const daysLate = Math.floor((Date.now() - new Date(`${lastPaid}T00:00:00`).getTime()) / 86400000) - 1
+  return daysLate >= 5 ? 'En mora' : 'Al dia'
+}
+
 function mapCliente(row) {
+  const lastPaid = dateOnly(row.ultimoMesPagado)
   return {
     id: row.id,
     fechaConexion: dateOnly(row.fechaConexion),
@@ -36,8 +44,8 @@ function mapCliente(row) {
     plan: row.plan,
     valor: row.valor === null ? null : Number(row.valor),
     ip: row.ip,
-    ultimoMesPagado: dateOnly(row.ultimoMesPagado),
-    estado: row.estado,
+    ultimoMesPagado: lastPaid,
+    estado: effectiveStatus(row.estado, lastPaid),
   }
 }
 
@@ -133,7 +141,7 @@ app.post('/api/clientes/:id/pagos', async (request, response) => {
          id_estado = CASE
            WHEN c.id_estado = (SELECT id_estado FROM estados WHERE nombre = 'Cortado') THEN c.id_estado
            WHEN CURRENT_DATE - pago.nueva_fecha >= 6 THEN (SELECT id_estado FROM estados WHERE nombre = 'En mora')
-           ELSE (SELECT id_estado FROM estados WHERE nombre = 'Activo')
+           ELSE (SELECT id_estado FROM estados WHERE nombre = 'Al dia')
          END
      FROM pago
      WHERE c.id_cliente = $1
@@ -152,6 +160,14 @@ app.use((error, _request, response, _next) => {
   response.status(500).json({ error: 'Error interno del servidor' })
 })
 
-app.listen(port, () => {
-  console.log(`API escuchando en el puerto ${port}`)
+async function start() {
+  await pool.query("UPDATE estados SET nombre = 'Al dia' WHERE id_estado = 1 AND nombre = 'Activo'")
+  app.listen(port, () => {
+    console.log(`API escuchando en el puerto ${port}`)
+  })
+}
+
+start().catch(error => {
+  console.error('No se pudo iniciar la API:', error)
+  process.exit(1)
 })

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS estados (
 
 INSERT INTO estados (id_estado, nombre)
 VALUES
-    (1, 'Activo'),
+    (1, 'Al dia'),
     (2, 'En mora'),
     (3, 'Cortado')
 ON CONFLICT (id_estado) DO UPDATE

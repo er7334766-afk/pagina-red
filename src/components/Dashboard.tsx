@@ -16,7 +16,7 @@ export default function Dashboard({ clientes, onRegistrarPago }: Props) {
   const [toast, setToast] = useState('')
 
   const total = clientes.length
-  const activos = clientes.filter(c => c.estado === 'Activo').length
+  const activos = clientes.filter(c => c.estado === 'Al dia').length
   const enMora = clientes.filter(c => esMoroso(c)).length
   const cortados = clientes.filter(c => c.estado === 'Cortado').length
 
@@ -42,7 +42,7 @@ export default function Dashboard({ clientes, onRegistrarPago }: Props) {
         {/* KPI cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <KpiCard icon={<Users size={18} className="text-blue-600" />} label="Total clientes" value={total} color="blue" />
-          <KpiCard icon={<Wifi size={18} className="text-emerald-600" />} label="Activos" value={activos} color="emerald" />
+          <KpiCard icon={<Wifi size={18} className="text-emerald-600" />} label="Al dia" value={activos} color="emerald" />
           <KpiCard icon={<AlertCircle size={18} className="text-red-600" />} label="En mora" value={enMora} color="red" />
           <KpiCard icon={<WifiOff size={18} className="text-slate-500" />} label="Cortados" value={cortados} color="slate" />
         </div>

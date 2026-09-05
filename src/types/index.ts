@@ -1,4 +1,4 @@
-export type Estado = 'Activo' | 'En mora' | 'Cortado'
+export type Estado = 'Al dia' | 'En mora' | 'Cortado'
 
 export interface Cliente {
   id: number

@@ -1,7 +1,7 @@
 import { Estado } from '../types'
 
 const styles: Record<Estado, string> = {
-  'Activo': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+  'Al dia': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
   'En mora': 'bg-red-100 text-red-700 border border-red-200',
   'Cortado': 'bg-slate-100 text-slate-600 border border-slate-200',
 }

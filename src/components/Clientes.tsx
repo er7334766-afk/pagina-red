@@ -65,7 +65,7 @@ export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, o
 
   const closeToast = useCallback(() => setToast(''), [])
 
-  const FILTROS: FiltroEstado[] = ['Todos', 'Activo', 'En mora', 'Cortado']
+  const FILTROS: FiltroEstado[] = ['Todos', 'Al dia', 'En mora', 'Cortado']
 
   return (
     <div className="flex-1 overflow-y-auto">

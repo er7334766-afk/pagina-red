@@ -11,7 +11,7 @@ export const clientesIniciales: Cliente[] = [
     valor: 500,
     ip: '192.168.1.20',
     ultimoMesPagado: '2026-08-31', // paid through August → current, no mora
-    estado: 'Activo',
+    estado: 'Al dia',
   },
   {
     id: 2,
@@ -51,7 +51,7 @@ export const clientesIniciales: Cliente[] = [
     valor: 1200,
     ip: '192.168.1.24',
     ultimoMesPagado: '2026-08-31', // paid through August → current
-    estado: 'Activo',
+    estado: 'Al dia',
   },
   {
     id: 6,
@@ -71,7 +71,7 @@ export const clientesIniciales: Cliente[] = [
     valor: 600,
     ip: '192.168.1.26',
     ultimoMesPagado: '2026-08-31', // paid through August → current
-    estado: 'Activo',
+    estado: 'Al dia',
   },
   {
     id: 8,
@@ -81,6 +81,6 @@ export const clientesIniciales: Cliente[] = [
     valor: 800,
     ip: '192.168.1.27',
     ultimoMesPagado: '2026-08-31', // paid through August → current
-    estado: 'Activo',
+    estado: 'Al dia',
   },
 ]
