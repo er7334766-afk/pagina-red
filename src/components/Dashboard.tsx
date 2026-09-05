@@ -10,7 +10,7 @@ const MOROSOS_POR_PAGINA = 50
 
 interface Props {
   clientes: Cliente[]
-  onRegistrarPago: (id: number, meses: number) => void
+  onRegistrarPago: (id: number, meses: number, ultimoMesPagado: string) => void
 }
 
 export default function Dashboard({ clientes, onRegistrarPago }: Props) {
@@ -27,9 +27,9 @@ export default function Dashboard({ clientes, onRegistrarPago }: Props) {
   const totalPaginas = Math.max(1, Math.ceil(morosos.length / MOROSOS_POR_PAGINA))
   const morososPagina = morosos.slice((pagina - 1) * MOROSOS_POR_PAGINA, pagina * MOROSOS_POR_PAGINA)
 
-  const handlePago = useCallback((meses: number) => {
+  const handlePago = useCallback((meses: number, ultimoMesPagado: string) => {
     if (!pagoCliente) return
-    onRegistrarPago(pagoCliente.id, meses)
+    onRegistrarPago(pagoCliente.id, meses, ultimoMesPagado)
     setPagoCliente(null)
     setToast('Pago registrado correctamente')
   }, [pagoCliente, onRegistrarPago])

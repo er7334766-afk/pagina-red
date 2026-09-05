@@ -68,10 +68,10 @@ export function useClientes() {
     setClientes(prev => prev.map(cliente => (cliente.id === id ? updated : cliente)))
   }
 
-  async function registrarPago(id: number, meses: number) {
+  async function registrarPago(id: number, meses: number, ultimoMesPagado: string) {
     const updated = await request<Cliente>(`/api/clientes/${id}/pagos`, {
       method: 'POST',
-      body: JSON.stringify({ meses }),
+      body: JSON.stringify({ meses, ultimoMesPagado }),
     })
     setClientes(prev => prev.map(cliente => (cliente.id === id ? updated : cliente)))
   }

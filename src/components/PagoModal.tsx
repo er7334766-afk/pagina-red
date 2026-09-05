@@ -3,24 +3,47 @@ import { Cliente } from '../types'
 import { formatMes } from '../store/useClientes'
 import { X } from './icons'
 
-const OPCIONES_MESES = [1, 2, 3, 6, 12]
-
 interface Props {
   cliente: Cliente
   onClose: () => void
-  onSave: (meses: number) => void
+  onSave: (meses: number, ultimoMesPagado: string) => void
+}
+
+function mesesPendientes(ultimoMesPagado: string | null): { value: string; label: string }[] {
+  const base = ultimoMesPagado ? new Date(`${ultimoMesPagado}T12:00:00`) : new Date()
+  const startMonth = ultimoMesPagado ? base.getMonth() + 1 : base.getMonth()
+  const year = base.getFullYear()
+  const result: { value: string; label: string }[] = []
+
+  for (let month = startMonth; month < 12; month += 1) {
+    const date = new Date(year, month, 1)
+    result.push({
+      value: `${year}-${String(month + 1).padStart(2, '0')}-01`,
+      label: date.toLocaleDateString('es-HN', { month: 'long', year: 'numeric' }),
+    })
+  }
+  return result
 }
 
 export default function PagoModal({ cliente, onClose, onSave }: Props) {
   const today = new Date().toISOString().split('T')[0]
-  const [meses, setMeses] = useState(1)
+  const opcionesMeses = useMemo(() => mesesPendientes(cliente.ultimoMesPagado), [cliente.ultimoMesPagado])
+  const [mesesSeleccionados, setMesesSeleccionados] = useState<string[]>(() => opcionesMeses.slice(0, 1).map(mes => mes.value))
   const [fecha, setFecha] = useState(today)
 
-  const total = useMemo(() => (cliente.valor ?? 0) * meses, [cliente.valor, meses])
+  const total = useMemo(() => (cliente.valor ?? 0) * mesesSeleccionados.length, [cliente.valor, mesesSeleccionados.length])
+
+  function toggleMes(value: string) {
+    setMesesSeleccionados(current => current.includes(value)
+      ? current.filter(mes => mes !== value)
+      : [...current, value].sort())
+  }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    onSave(meses)
+    const ultimoMesPagado = mesesSeleccionados.at(-1)
+    if (!ultimoMesPagado) return
+    onSave(mesesSeleccionados.length, ultimoMesPagado)
   }
 
   return (
@@ -52,25 +75,27 @@ export default function PagoModal({ cliente, onClose, onSave }: Props) {
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
-          {/* Meses a pagar */}
+          {/* Meses concretos a pagar */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Cantidad de meses a pagar</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Meses a pagar</label>
             <div className="flex gap-2 flex-wrap">
-              {OPCIONES_MESES.map(m => (
+              {opcionesMeses.map(mes => (
                 <button
-                  key={m}
+                  key={mes.value}
                   type="button"
-                  onClick={() => setMeses(m)}
+                  onClick={() => toggleMes(mes.value)}
                   className={`px-4 py-2 rounded-md text-sm font-semibold border transition-colors ${
-                    meses === m
+                    mesesSeleccionados.includes(mes.value)
                       ? 'bg-blue-600 text-white border-blue-600'
                       : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600'
                   }`}
                 >
-                  {m === 1 ? '1 mes' : `${m} meses`}
+                  {mes.label}
                 </button>
               ))}
             </div>
+            {opcionesMeses.length === 0 && <p className="text-xs text-slate-400">No hay meses pendientes para seleccionar.</p>}
+            <p className="text-xs text-slate-400 mt-2">Seleccionados: {mesesSeleccionados.length}</p>
           </div>
 
           {/* Fecha del pago */}
@@ -101,6 +126,7 @@ export default function PagoModal({ cliente, onClose, onSave }: Props) {
             </button>
             <button
               type="submit"
+              disabled={mesesSeleccionados.length === 0}
               className="flex-1 px-4 py-2.5 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
             >
               Registrar pago

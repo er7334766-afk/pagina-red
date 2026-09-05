@@ -133,27 +133,22 @@ app.patch('/api/clientes/:id/baja', async (request, response) => {
 
 app.post('/api/clientes/:id/pagos', async (request, response) => {
   const meses = Number(request.body.meses)
-  if (!Number.isInteger(meses) || meses < 1) {
+  const ultimoMesPagado = request.body.ultimoMesPagado
+  if (!Number.isInteger(meses) || meses < 1 || !/^\d{4}-\d{2}-01$/.test(ultimoMesPagado || '')) {
     return response.status(400).json({ error: 'La cantidad de meses debe ser un entero positivo' })
   }
 
   const result = await pool.query(
-    `WITH pago AS (
-       SELECT ((date_trunc('month', ultimo_mes_pagado) + ($2::int + 1) * interval '1 month' - interval '1 day')::date) AS nueva_fecha
-       FROM clientes
-       WHERE id_cliente = $1 AND ultimo_mes_pagado IS NOT NULL
-     )
-     UPDATE clientes AS c
-     SET ultimo_mes_pagado = pago.nueva_fecha,
+    `UPDATE clientes AS c
+     SET ultimo_mes_pagado = (date_trunc('month', $2::date) + interval '1 month' - interval '1 day')::date,
          id_estado = CASE
            WHEN c.id_estado = (SELECT id_estado FROM estados WHERE nombre = 'Cortado') THEN c.id_estado
-           WHEN CURRENT_DATE - pago.nueva_fecha >= 6 THEN (SELECT id_estado FROM estados WHERE nombre = 'En mora')
+           WHEN CURRENT_DATE - (date_trunc('month', $2::date) + interval '1 month' - interval '1 day')::date >= 6 THEN (SELECT id_estado FROM estados WHERE nombre = 'En mora')
            ELSE (SELECT id_estado FROM estados WHERE nombre = 'Al dia')
          END
-     FROM pago
      WHERE c.id_cliente = $1
      RETURNING c.id_cliente`,
-    [request.params.id, meses],
+    [request.params.id, ultimoMesPagado],
   )
   if (result.rowCount === 0) {
     return response.status(400).json({ error: 'El cliente no existe o no tiene último mes pagado para calcular el pago' })

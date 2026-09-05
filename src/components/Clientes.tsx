@@ -13,7 +13,7 @@ interface Props {
   onAgregar: (data: Omit<Cliente, 'id'>) => void
   onEditar: (id: number, data: Omit<Cliente, 'id'>) => void
   onDarDeBaja: (id: number) => void
-  onRegistrarPago: (id: number, meses: number) => void
+  onRegistrarPago: (id: number, meses: number, ultimoMesPagado: string) => void
 }
 
 type FiltroEstado = 'Todos' | Estado
@@ -62,10 +62,10 @@ export default function Clientes({ clientes, onAgregar, onEditar, onDarDeBaja, o
     }
   }, [editCliente, onAgregar, onEditar])
 
-  const handlePago = useCallback(async (meses: number) => {
+  const handlePago = useCallback(async (meses: number, ultimoMesPagado: string) => {
     if (!pagoCliente) return
     try {
-      await onRegistrarPago(pagoCliente.id, meses)
+      await onRegistrarPago(pagoCliente.id, meses, ultimoMesPagado)
       setPagoCliente(null)
       setToast('Pago registrado correctamente')
     } catch (error) {

@@ -12,8 +12,8 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { clientes, agregarCliente, editarCliente, darDeBaja, registrarPago } = useClientes()
 
-  const handleRegistrarPago = useCallback((id: number, meses: number) => {
-    return registrarPago(id, meses)
+  const handleRegistrarPago = useCallback((id: number, meses: number, ultimoMesPagado: string) => {
+    return registrarPago(id, meses, ultimoMesPagado)
   }, [registrarPago])
 
   return (
