@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Cliente } from '../types'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000'
+const API_URL = import.meta.env.VITE_API_URL || (
+  import.meta.env.PROD ? 'https://pagina-red.onrender.com' : 'http://localhost:10000'
+)
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
