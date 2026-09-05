@@ -22,6 +22,7 @@ try {
 
   await client.query('BEGIN')
   await client.query(schemaSql)
+  await client.query('TRUNCATE TABLE clientes RESTART IDENTITY')
   await client.query(insertSql)
   await client.query('COMMIT')
   console.log('Esquema y clientes cargados correctamente en Render.')
