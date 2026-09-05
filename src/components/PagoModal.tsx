@@ -12,10 +12,11 @@ interface Props {
 function mesesPendientes(ultimoMesPagado: string | null): { value: string; label: string }[] {
   const base = ultimoMesPagado ? new Date(`${ultimoMesPagado}T12:00:00`) : new Date()
   const startMonth = ultimoMesPagado ? base.getMonth() + 1 : base.getMonth()
-  const year = base.getFullYear()
+  const year = base.getFullYear() + (startMonth === 12 ? 1 : 0)
+  const firstMonth = startMonth === 12 ? 0 : startMonth
   const result: { value: string; label: string }[] = []
 
-  for (let month = startMonth; month < 12; month += 1) {
+  for (let month = firstMonth; month < 12; month += 1) {
     const date = new Date(year, month, 1)
     result.push({
       value: `${year}-${String(month + 1).padStart(2, '0')}-01`,
