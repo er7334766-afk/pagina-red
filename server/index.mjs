@@ -22,6 +22,13 @@ function nullable(value) {
   return value === '' || value === undefined ? null : value
 }
 
+function normalizePlan(value) {
+  const plan = nullable(value)
+  if (plan === null) return null
+  const normalized = String(plan).trim()
+  return /^\d+(\.\d+)?$/.test(normalized) ? `${normalized}mg` : normalized
+}
+
 function dateOnly(value) {
   if (!value) return null
   if (value instanceof Date) return value.toISOString().slice(0, 10)
@@ -41,7 +48,7 @@ function mapCliente(row) {
     id: row.id,
     fechaConexion: dateOnly(row.fechaConexion),
     abonado: row.abonado,
-    plan: row.plan,
+    plan: normalizePlan(row.plan),
     valor: row.valor === null ? null : Number(row.valor),
     ip: row.ip,
     ultimoMesPagado: lastPaid,
@@ -85,7 +92,7 @@ app.post('/api/clientes', async (request, response) => {
       (fecha_conexion, abonado, plan, valor, ip, ultimo_mes_pagado, id_estado)
      VALUES ($1, $2, $3, $4, $5, $6, (SELECT id_estado FROM estados WHERE nombre = $7))
      RETURNING id_cliente`,
-    [nullable(fechaConexion), nullable(abonado), nullable(plan), nullable(valor), nullable(ip), nullable(ultimoMesPagado), nullable(estado)],
+    [nullable(fechaConexion), nullable(abonado), normalizePlan(plan), nullable(valor), nullable(ip), nullable(ultimoMesPagado), nullable(estado)],
   )
   const created = await pool.query(`${clienteSelect} WHERE c.id_cliente = $1`, [result.rows[0].id_cliente])
   response.status(201).json(mapCliente(created.rows[0]))
@@ -104,7 +111,7 @@ app.put('/api/clientes/:id', async (request, response) => {
          id_estado = (SELECT id_estado FROM estados WHERE nombre = $7)
      WHERE id_cliente = $8
      RETURNING id_cliente`,
-    [nullable(fechaConexion), nullable(abonado), nullable(plan), nullable(valor), nullable(ip), nullable(ultimoMesPagado), nullable(estado), request.params.id],
+    [nullable(fechaConexion), nullable(abonado), normalizePlan(plan), nullable(valor), nullable(ip), nullable(ultimoMesPagado), nullable(estado), request.params.id],
   )
   if (result.rowCount === 0) return response.status(404).json({ error: 'Cliente no encontrado' })
   const updated = await pool.query(`${clienteSelect} WHERE c.id_cliente = $1`, [request.params.id])
@@ -162,6 +169,7 @@ app.use((error, _request, response, _next) => {
 
 async function start() {
   await pool.query("UPDATE estados SET nombre = 'Al dia' WHERE id_estado = 1 AND nombre = 'Activo'")
+  await pool.query("UPDATE clientes SET plan = plan || 'mg' WHERE plan ~ '^\\d+(\\.\\d+)?$'")
   app.listen(port, () => {
     console.log(`API escuchando en el puerto ${port}`)
   })

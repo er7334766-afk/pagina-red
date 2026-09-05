@@ -11,6 +11,12 @@ function sqlText(value) {
   return `'${normalized.replaceAll("'", "''")}'`
 }
 
+function sqlPlan(value) {
+  const normalized = value?.trim()
+  if (!normalized || normalized.toLowerCase() === 'null') return 'NULL'
+  return sqlText(/^\d+(\.\d+)?$/.test(normalized) ? `${normalized}mg` : normalized)
+}
+
 function sqlDate(value) {
   const normalized = value?.trim()
   if (!normalized || normalized.toLowerCase() === 'null') return 'NULL'
@@ -39,7 +45,7 @@ const inserts = rows.map(columns => {
   const estado = marker === 'cortado' || marker === 'se retiro' ? '3' : 'NULL'
   const lastPaid = estado === '3' ? 'NULL' : sqlDate(ultimoMesPagado)
 
-  return `INSERT INTO clientes (fecha_conexion, abonado, plan, valor, ip, ultimo_mes_pagado, id_estado) VALUES (${sqlDate(fecha)}, ${sqlText(abonado)}, ${sqlText(plan)}, ${sqlNumber(valor)}, ${sqlText(ip)}, ${lastPaid}, ${estado});`
+  return `INSERT INTO clientes (fecha_conexion, abonado, plan, valor, ip, ultimo_mes_pagado, id_estado) VALUES (${sqlDate(fecha)}, ${sqlText(abonado)}, ${sqlPlan(plan)}, ${sqlNumber(valor)}, ${sqlText(ip)}, ${lastPaid}, ${estado});`
 })
 
 const sql = [

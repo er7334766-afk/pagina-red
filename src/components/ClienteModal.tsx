@@ -92,7 +92,7 @@ export default function ClienteModal({ cliente, onClose, onSave }: Props) {
                 value={form.plan ?? ''}
                 onChange={e => set('plan', e.target.value)}
                 required
-                placeholder="Ej: 30mg"
+                placeholder="Ej: 30"
                 className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
