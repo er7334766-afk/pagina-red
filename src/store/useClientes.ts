@@ -5,9 +5,9 @@ const API_URL = import.meta.env.VITE_API_URL || (
   import.meta.env.PROD ? 'https://pagina-red.onrender.com' : 'http://localhost:10000'
 ).replace(/\/+$/, '')
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
+async function request<T>(path: string, token: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     ...options,
   })
   if (!response.ok) {
@@ -38,17 +38,17 @@ export function formatMes(dateStr: string | null): string {
   return d.toLocaleDateString('es-HN', { month: 'long', year: 'numeric' })
 }
 
-export function useClientes() {
+export function useClientes(token: string) {
   const [clientes, setClientes] = useState<Cliente[]>([])
 
   useEffect(() => {
-    request<Cliente[]>('/api/clientes')
+    request<Cliente[]>('/api/clientes', token)
       .then(setClientes)
       .catch(error => console.error('No se pudieron cargar los clientes:', error))
   }, [])
 
   async function agregarCliente(data: Omit<Cliente, 'id'>) {
-    const created = await request<Cliente>('/api/clientes', {
+    const created = await request<Cliente>('/api/clientes', token, {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -56,7 +56,7 @@ export function useClientes() {
   }
 
   async function editarCliente(id: number, data: Omit<Cliente, 'id'>) {
-    const updated = await request<Cliente>(`/api/clientes/${id}`, {
+    const updated = await request<Cliente>(`/api/clientes/${id}`, token, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
@@ -64,12 +64,12 @@ export function useClientes() {
   }
 
   async function darDeBaja(id: number) {
-    const updated = await request<Cliente>(`/api/clientes/${id}/baja`, { method: 'PATCH' })
+    const updated = await request<Cliente>(`/api/clientes/${id}/baja`, token, { method: 'PATCH' })
     setClientes(prev => prev.map(cliente => (cliente.id === id ? updated : cliente)))
   }
 
   async function registrarPago(id: number, meses: number, ultimoMesPagado: string) {
-    const updated = await request<Cliente>(`/api/clientes/${id}/pagos`, {
+    const updated = await request<Cliente>(`/api/clientes/${id}/pagos`, token, {
       method: 'POST',
       body: JSON.stringify({ meses, ultimoMesPagado }),
     })

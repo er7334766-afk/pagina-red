@@ -4,17 +4,23 @@ import Sidebar from './components/Sidebar'
 import Dashboard from './components/Dashboard'
 import Clientes from './components/Clientes'
 import { Menu } from './components/icons'
+import Login from './components/Login'
 
 type Page = 'dashboard' | 'clientes'
+const API_URL = (import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://pagina-red.onrender.com' : 'http://localhost:10000')).replace(/\/+$/, '')
 
 export default function App() {
+  const [token, setToken] = useState(() => sessionStorage.getItem('semtec_token') || '')
   const [page, setPage] = useState<Page>('dashboard')
   const [menuOpen, setMenuOpen] = useState(false)
-  const { clientes, agregarCliente, editarCliente, darDeBaja, registrarPago } = useClientes()
-
+  const { clientes, agregarCliente, editarCliente, darDeBaja, registrarPago } = useClientes(token)
   const handleRegistrarPago = useCallback((id: number, meses: number, ultimoMesPagado: string) => {
     return registrarPago(id, meses, ultimoMesPagado)
   }, [registrarPago])
+
+  if (!token) {
+    return <Login apiUrl={API_URL} onLogin={value => { sessionStorage.setItem('semtec_token', value); setToken(value) }} />
+  }
 
   return (
     <div className="size-full flex bg-slate-100">
