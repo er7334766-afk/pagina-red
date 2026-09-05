@@ -16,7 +16,7 @@ export default function Sidebar({ page, setPage }: Props) {
   return (
     <aside className="w-56 shrink-0 bg-slate-800 flex flex-col h-full">
       <div className="px-5 py-5 border-b border-slate-700">
-        <span className="text-white font-semibold tracking-wide text-base">ISP Admin</span>
+        <span className="text-white font-semibold tracking-wide text-base">SEMTEC</span>
         <p className="text-slate-400 text-xs mt-0.5">Panel de control</p>
       </div>
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
