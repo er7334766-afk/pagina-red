@@ -16,7 +16,7 @@ try {
   await client.connect()
   await client.query('CREATE UNIQUE INDEX IF NOT EXISTS clientes_ip_unique ON clientes (ip) WHERE ip IS NOT NULL')
   const result = await client.query(
-    "DELETE FROM clientes WHERE id_cliente IN (279, 280) OR ip IN ('23894723894', '234890') RETURNING id_cliente, ip",
+    "DELETE FROM clientes WHERE id_cliente IN (279, 280, 281) OR ip IN ('23894723894', '234890', '283472384') RETURNING id_cliente, ip",
   )
   console.log(`Registros eliminados: ${result.rowCount}`)
   console.log(result.rows)
