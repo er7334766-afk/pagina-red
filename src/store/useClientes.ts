@@ -10,6 +10,10 @@ async function request<T>(path: string, token: string, options?: RequestInit): P
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     ...options,
   })
+  if (response.status === 401) {
+    sessionStorage.removeItem('semtec_token')
+    window.dispatchEvent(new Event('semtec-logout'))
+  }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))
     throw new Error(body.error || 'No se pudo completar la solicitud')

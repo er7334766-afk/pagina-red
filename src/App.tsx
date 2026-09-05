@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useClientes } from './store/useClientes'
 import Sidebar from './components/Sidebar'
 import Dashboard from './components/Dashboard'
@@ -17,6 +17,12 @@ export default function App() {
   const handleRegistrarPago = useCallback((id: number, meses: number, ultimoMesPagado: string) => {
     return registrarPago(id, meses, ultimoMesPagado)
   }, [registrarPago])
+
+  useEffect(() => {
+    const handleLogout = () => setToken('')
+    window.addEventListener('semtec-logout', handleLogout)
+    return () => window.removeEventListener('semtec-logout', handleLogout)
+  }, [])
 
   if (!token) {
     return <Login apiUrl={API_URL} onLogin={value => { sessionStorage.setItem('semtec_token', value); setToken(value) }} />
