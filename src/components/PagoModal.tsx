@@ -34,9 +34,15 @@ export default function PagoModal({ cliente, onClose, onSave }: Props) {
   const total = useMemo(() => (cliente.valor ?? 0) * mesesSeleccionados.length, [cliente.valor, mesesSeleccionados.length])
 
   function toggleMes(value: string) {
-    setMesesSeleccionados(current => current.includes(value)
-      ? current.filter(mes => mes !== value)
-      : [...current, value].sort())
+    const index = opcionesMeses.findIndex(mes => mes.value === value)
+    if (index < 0) return
+
+    setMesesSeleccionados(current => {
+      const selectedIndex = current.indexOf(value)
+      if (selectedIndex >= 0) return current.slice(0, selectedIndex)
+      if (index !== current.length) return current
+      return [...current, value]
+    })
   }
 
   function handleSubmit(e: FormEvent) {
@@ -79,15 +85,16 @@ export default function PagoModal({ cliente, onClose, onSave }: Props) {
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Meses a pagar</label>
             <div className="flex gap-2 flex-wrap">
-              {opcionesMeses.map(mes => (
+              {opcionesMeses.map((mes, index) => (
                 <button
                   key={mes.value}
                   type="button"
                   onClick={() => toggleMes(mes.value)}
+                  disabled={!mesesSeleccionados.includes(mes.value) && index !== mesesSeleccionados.length}
                   className={`px-4 py-2 rounded-md text-sm font-semibold border transition-colors ${
                     mesesSeleccionados.includes(mes.value)
                       ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:text-slate-600'
                   }`}
                 >
                   {mes.label}
