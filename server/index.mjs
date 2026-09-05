@@ -22,15 +22,21 @@ function nullable(value) {
   return value === '' || value === undefined ? null : value
 }
 
+function dateOnly(value) {
+  if (!value) return null
+  if (value instanceof Date) return value.toISOString().slice(0, 10)
+  return String(value).split('T')[0]
+}
+
 function mapCliente(row) {
   return {
     id: row.id,
-    fechaConexion: row.fechaConexion,
+    fechaConexion: dateOnly(row.fechaConexion),
     abonado: row.abonado,
     plan: row.plan,
     valor: row.valor === null ? null : Number(row.valor),
     ip: row.ip,
-    ultimoMesPagado: row.ultimoMesPagado,
+    ultimoMesPagado: dateOnly(row.ultimoMesPagado),
     estado: row.estado,
   }
 }
