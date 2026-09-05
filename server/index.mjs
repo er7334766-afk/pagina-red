@@ -14,6 +14,10 @@ const pool = new Pool({
 app.use(cors({ origin: allowedOrigin }))
 app.use(express.json())
 
+app.get('/', (_request, response) => {
+  response.json({ service: 'pagina-red-api', status: 'ok' })
+})
+
 function nullable(value) {
   return value === '' || value === undefined ? null : value
 }
